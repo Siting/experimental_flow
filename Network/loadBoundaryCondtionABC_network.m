@@ -14,7 +14,7 @@ for i = 1 : length(SOURCE_LINK)
     load(['.\SensorData_feedIn\' num2str(boundarySourceSensorIDs(i)) '.mat']);
 
     % load data from startTime to endTime
-    startCell = ceil((startTime*60)/T + 1);
+    startCell = ceil((startTime*60)/T + 2);
     endCell = floor((endTime*60)/T + 1);
     flowDataSum = flowDataSum(startCell:endCell,1);
     

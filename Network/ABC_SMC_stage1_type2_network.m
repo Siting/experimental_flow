@@ -1,6 +1,6 @@
 function[ACCEPTED_POP, REJECTED_POP, indexCollection, errorCollectionForStage] = ABC_SMC_stage1_type2_network(measConfigID, configID, samplingSize, ALL_SAMPLES,...
     populationSize, times, ACCEPTED_POP, REJECTED_POP, indexCollection, tSensorIDs, sensorDataMatrix, nodeMap, sensorMetaDataMap, linkMap,...
-    stage, T, deltaTinSecond, thresholdVector, errorCollectionForStage)
+    stage, T, deltaTinSecond, thresholdVector, errorCollectionForStage, ROUND_SAMPLES)
 
 % criteria = thresholdVector(junctionIndex, 1);
 criteria = 0;
@@ -10,11 +10,11 @@ sensorSelection = [];
 for sample = ((times-1)*samplingSize + 1) : (times * samplingSize)
     
     % load model density simulation data (first row = initial state)
-    [modelDataMatrix] = getModelSimulationDataCumu_network(configID, sample, tSensorIDs, T, deltaTinSecond);
+    [modelDataMatrix] = getModelSimulationDataCumu_network(configID, sample, tSensorIDs, T, deltaTinSecond, ROUND_SAMPLES);
 
     % create error matrix (density)
     errorMatrix = generateErrorMatrixTest_network(modelDataMatrix, sensorDataMatrix, tSensorIDs);
-
+    
     % reject or select?
     [choice, sensorSelection, sampleError] = rejectAccept_network(errorMatrix, criteria, nodeMap, sensorMetaDataMap,...
         linkMap, stage, sensorSelection, thresholdVector);

@@ -1,7 +1,7 @@
 function[NEW_ACCEPTED_POP, newWeights, ar, NEW_REJECTED_POP, errorCollectionForStage, thresholdVector, criteriaForStage] = ABC_SMC_stage2AndLater2_type2_network(measConfigID, configID, samplingSize, criteria,...
                     ACCEPTED_POP, REJECTED_POP, ALL_SAMPLES, oldWeights, populationSize, PARAMETER, CONFIG,...
                     sensorMetaDataMap, LINK, SOURCE_LINK, SINK_LINK, JUNCTION, stage, linkMap, testingSensorIDs,...
-                    sensorDataMatrix, nodeMap, errorCollectionForStage)
+                    sensorDataMatrix, nodeMap, errorCollectionForStage, ROUND_SAMPLES)
                 
 global thresholdChoice
    
@@ -34,14 +34,14 @@ while(condition)
 
     % update Fundamental for links etc, and then run simulation
     disp('start simulation');
-    [LINK, SOURCE_LINK, SINK_LINK, JUNCTION, T, deltaTinSecond] = updateFunAndSimulate_type2_network(POPULATION_2, LINK, SOURCE_LINK, SINK_LINK, JUNCTION,...
-        CONFIG, PARAMETER, indexCollection_1, sensorMetaDataMap, configID, stage, linkMap);
+    [LINK, SOURCE_LINK, SINK_LINK, JUNCTION, T, deltaTinSecond, ROUND_SAMPLES] = updateFunAndSimulate_type2_network(POPULATION_2, LINK, SOURCE_LINK, SINK_LINK, JUNCTION,...
+        CONFIG, PARAMETER, indexCollection_1, sensorMetaDataMap, configID, stage, linkMap, ROUND_SAMPLES);
 
     % filter samples, accept or reject?
     disp('start calibration');
     [POPULATION_3, POPULATION_4, indexCollection_2, filteredWeights, errorCollectionForStage] = filterSamples_type2_network(POPULATION_2, indexCollection_1, oldWeights,...
         configID, measConfigID, stage, sensorDataMatrix, testingSensorIDs, linkMap, nodeMap, sensorMetaDataMap,...
-        T, deltaTinSecond, thresholdVector, errorCollectionForStage);
+        T, deltaTinSecond, thresholdVector, errorCollectionForStage, ROUND_SAMPLES);
     
     if times <= 5
         save([CONFIG.evolutionDataFolder '-sampledAndPertubed-stage-' num2str(stage) '-time-' num2str(times)], 'POPULATION_1', 'POPULATION_2',...
@@ -50,7 +50,6 @@ while(condition)
 
     if size(POPULATION_3(1).samples, 2) == 0 
         disp('round population size 0 after filtering');
-        continue;
     end
 
 %     % save filtered LINKs

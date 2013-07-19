@@ -7,10 +7,11 @@ global boundarySinkSensorIDs
 global testingSensorIDs
 global sensorDataSource
 global thresholdChoice
+global errorStart
 
-series = 15;
-studyStages = [7];
-numSamplesStudied = 5;
+series = 18;
+studyStages = [1;2;3;4];
+numSamplesStudied = 100;
 cali_configID = 41;
 cali_paraID = 41;
 simu_configID = 115;
@@ -19,9 +20,12 @@ boundarySinkSensorIDs = [402953; 400698];
 testingSensorIDs = [400739; 400363];
 sensorDataSource = 2;
 thresholdChoice = 2;
+errorStart = 4;
 
 % load thresholdVecotr & PARA & CONFIG
-load(['.\ResultCollection\series' num2str(series) '\-calibrationResult.mat']);
+% load(['.\ResultCollection\series' num2str(series) '\-calibrationResult.mat']);
+criteria = 0;
+criteriaForRounds = zeros(10,2);
 load(['.\Configurations\parameters\PARAMETER-' num2str(cali_paraID) '.mat']);
 load(['.\Configurations\configs\CONFIG-' num2str(cali_paraID) '.mat']);
 FUNDAMENTAL = PARAMETER.FUNDAMENTAL;
@@ -40,6 +44,8 @@ end
 [sensorDataMatrix] = getNoisySensorData_network(testingSensorIDs, PARAMETER.T,...
     PARAMETER.startTime, PARAMETER.endTime);
 
+ROUND_SAMPLES = initializeAllSamples(linkMap);
+
 for i = 1 : length(studyStages)   % iterate through stages
     
     load(['.\ResultCollection\series' num2str(series)...
@@ -49,7 +55,7 @@ for i = 1 : length(studyStages)   % iterate through stages
     if numSamplesStudied > numSamples
         numSamplesStudied = numSamples;
     end
-    
+
     % SIMULATION
     [LINK, JUNCTION, SOURCE_LINK, SINK_LINK] = preloadAndCompute(linkMap, nodeMap, PARAMETER.T, PARAMETER.startTime, PARAMETER.endTime);
     for sample = 1 : numSamplesStudied    % iterate through samples
@@ -58,6 +64,10 @@ for i = 1 : length(studyStages)   % iterate through stages
             FUNDAMENTAL(j).vmax = ACCEPTED_POP(j).samples(1,sample);
             FUNDAMENTAL(j).dmax = ACCEPTED_POP(j).samples(2,sample);
             FUNDAMENTAL(j).dc = ACCEPTED_POP(j).samples(3,sample);
+            if j == 5 || j == 7
+                sampleV = [FUNDAMENTAL(j).vmax; FUNDAMENTAL(j).dmax; FUNDAMENTAL(j).dc];
+                ROUND_SAMPLES(j).samples = [ROUND_SAMPLES(j).samples sampleV];
+            end
         end
         % run simulation
         runSimulationForSample(FUNDAMENTAL, PARAMETER, CONFIG, simu_configID, sample, simu_evolutionDataFolder,...
@@ -67,18 +77,20 @@ for i = 1 : length(studyStages)   % iterate through stages
             disp(['sample ' num2str(sample) ' is finished']);
         end
     end
-
+    
     % FILTER
     [ACCEPTED_POP_NEW, REJECTED_POP_NEW] = initializeAcceptedRejected(linkMap);
     sensorSelection = [];
     errorCollectionForStage = [];
     criteria = 0;
     for sample = 1 : numSamplesStudied
+
         % load model density simulation data (first row = initial state)
         [modelDataMatrix] = getModelSimulationDataCumu_network(simu_configID, sample,...
-            testingSensorIDs, PARAMETER.T, PARAMETER.deltaTinSecond);
+            testingSensorIDs, PARAMETER.T, PARAMETER.deltaTinSecond, ROUND_SAMPLES);
         % create error matrix (density)
         errorMatrix = generateErrorMatrixTest_network(modelDataMatrix, sensorDataMatrix, testingSensorIDs);
+
         % reject or select?
         if thresholdChoice == 1
             [choice, sensorSelection, sampleError] = rejectAccept_network(errorMatrix, criteria, nodeMap,...
@@ -91,16 +103,14 @@ for i = 1 : length(studyStages)   % iterate through stages
         
         errorCollectionForStage = [errorCollectionForStage sampleError];
     end
-    
+ 
     % sort array in ascending order
     errorArrayStages(:,i) = sort(errorCollectionForStage, 'ascend');
-    keyboard
+
     matrixSize = size(sensorDataMatrix(:,1),1);
 
     relativeErrorStages(:,i) = max(errorArrayStages(:,i) / ( 1/matrixSize * norm(sensorDataMatrix(:,1))),...
         errorArrayStages(:,i) / ( 1/matrixSize * norm(sensorDataMatrix(:,2))));
-    
-    newRelativeError = mean(errorMatrix(2:end,1)./sensorDataMatrix(3:end,1))
 
 end
 
@@ -116,6 +126,7 @@ subplot(2,1,2)
 boxplot(relativeErrorStages);
 xlabel('Stage');
 ylabel('Relative error');
+keyboard
 saveas(gcf, ['../Plots\series' num2str(series) '\errorDistributionOfpreSavedSamples.pdf']);
 saveas(gcf, ['../Plots\series' num2str(series) '\errorDistributionOfpreSavedSamples.fig']);
 saveas(gcf, ['../Plots\series' num2str(series) '\errorDistributionOfpreSavedSamples.eps'], 'epsc');

@@ -1,5 +1,5 @@
-function[LINK, SOURCE_LINK, SINK_LINK, JUNCTION, numCellsNet, ALL_SAMPLES, numLanes] = initializeAll_network(FUNDAMENTAL, linkMap, JUNCTION, deltaT,...
-    numEns, CONFIG, ALL_SAMPLES, SOURCE_LINK, SINK_LINK, junctionSolverType, LINK)
+function[LINK, SOURCE_LINK, SINK_LINK, JUNCTION, numCellsNet, ALL_SAMPLES, numLanes, ROUND_SAMPLES] = initializeAll_network(FUNDAMENTAL, linkMap, JUNCTION, deltaT,...
+    numEns, CONFIG, ALL_SAMPLES, SOURCE_LINK, SINK_LINK, junctionSolverType, LINK, ROUND_SAMPLES)
 
 % Load Links (main links, source links, sink links)
 % denote links as LINK(i)
@@ -7,7 +7,7 @@ function[LINK, SOURCE_LINK, SINK_LINK, JUNCTION, numCellsNet, ALL_SAMPLES, numLa
 % vmax: miles/hour
 % dmax: vehs/mile
 % dc: vehs/mile
-[LINK] = loadLinksNew(linkMap, FUNDAMENTAL,CONFIG.configID, LINK);
+[LINK, ROUND_SAMPLES] = loadLinksNew(linkMap, FUNDAMENTAL,CONFIG.configID, LINK, ROUND_SAMPLES);
 ALL_SAMPLES = saveSamplesForLinks(LINK, ALL_SAMPLES);
 numLanes = LINK(1).numLanes;
 

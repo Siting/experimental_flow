@@ -1,5 +1,5 @@
-function[LINK, SOURCE_LINK, SINK_LINK, JUNCTION, T, deltaTinSecond] = updateFunAndSimulate_type2_network(POPULATION_2, LINK, SOURCE_LINK, SINK_LINK, JUNCTION,...
-    CONFIG, PARAMETER, indexCollection_1, sensorMetaDataMap, configID, stage, linkMap)
+function[LINK, SOURCE_LINK, SINK_LINK, JUNCTION, T, deltaTinSecond, ROUND_SAMPLES] = updateFunAndSimulate_type2_network(POPULATION_2, LINK, SOURCE_LINK, SINK_LINK, JUNCTION,...
+    CONFIG, PARAMETER, indexCollection_1, sensorMetaDataMap, configID, stage, linkMap, ROUND_SAMPLES)
 
 global funsOption
 
@@ -29,8 +29,8 @@ for sample = 1 : size(POPULATION_2(1).samples,2)
     end
     
     % update
-    [LINK, SOURCE_LINK, SINK_LINK, JUNCTION] = updateFundamentalFor_network(LINK, SOURCE_LINK, SINK_LINK, JUNCTION, FUNDAMENTAL,...
-        deltaT, numEns, CONFIG, linkMap, POPULATION_2, sample);
+    [LINK, SOURCE_LINK, SINK_LINK, JUNCTION, ROUND_SAMPLES] = updateFundamentalFor_network(LINK, SOURCE_LINK, SINK_LINK, JUNCTION, FUNDAMENTAL,...
+        deltaT, numEns, CONFIG, linkMap, POPULATION_2, sample, ROUND_SAMPLES);
     
     % run simulation
     [LINK] = runForwardSimulation(LINK, SOURCE_LINK, SINK_LINK, JUNCTION, deltaT, numEns, numTimeSteps, nT, junctionSolverType);

@@ -2,6 +2,7 @@ function[] = parameterCalibrationABCSMC_network(CONFIG,PARAMETER,configID)
 
 global testingSensorIDs
 global junctionIndex
+global sensorMode
 
 tTotalStart = tic;
 % load config & para & map
@@ -52,21 +53,27 @@ for stage = 1 : numStages  % iterate stages
             mkdir(LINKDataFolder);
         end
         
+        if sensorMode == 2
+            ROUND_SAMPLES = initializeAllSamples(linkMap);
+        else
+            ROUND_SAMPLES = [];
+        end
+        
         while (state)
             
             % simulation=============
             disp('start simulation');
             
             for sample = 1 : samplingSize
-                
+                    
                 index = (times-1)*samplingSize + sample;
                 
                 % sampling parameters for FUNDAMENTAL diagram
                 FUNDAMENTAL = sampleFUNDA(guessedFUNDAMENTAL, vmaxVar, dmaxVar, dcVar);
 
                 % Initialize links
-                [LINK, SOURCE_LINK, SINK_LINK, JUNCTION, numCellsNet, ALL_SAMPLES, numLanes] = initializeAll_network(FUNDAMENTAL, linkMap, JUNCTION, deltaT, numEns, CONFIG, ALL_SAMPLES,...
-                    SOURCE_LINK, SINK_LINK, junctionSolverType, LINK);
+                [LINK, SOURCE_LINK, SINK_LINK, JUNCTION, numCellsNet, ALL_SAMPLES, numLanes, ROUND_SAMPLES] = initializeAll_network(FUNDAMENTAL, linkMap, JUNCTION, deltaT, numEns, CONFIG, ALL_SAMPLES,...
+                    SOURCE_LINK, SINK_LINK, junctionSolverType, LINK, ROUND_SAMPLES);
           
                 % run forward simulation
                 [LINK] = runForwardSimulation(LINK, SOURCE_LINK, SINK_LINK, JUNCTION, deltaT,...
@@ -90,7 +97,7 @@ for stage = 1 : numStages  % iterate stages
             % ABC SMC stage 1: filter samples according
             [ACCEPTED_POP, REJECTED_POP, indexCollection, errorCollectionForStage] = ABC_SMC_stage1_type2_network(measConfigID, CONFIG.configID, samplingSize, ALL_SAMPLES,...
                 populationSize, times, ACCEPTED_POP, REJECTED_POP, indexCollection, testingSensorIDs, sensorDataMatrix, nodeMap,...
-                sensorMetaDataMap, linkMap,stage, T, deltaTinSecond, thresholdVector, errorCollectionForStage);
+                sensorMetaDataMap, linkMap,stage, T, deltaTinSecond, thresholdVector, errorCollectionForStage, ROUND_SAMPLES);
 
             % check accepted population Size
             if size(ACCEPTED_POP(1).samples,2) >= populationSize
@@ -122,12 +129,17 @@ for stage = 1 : numStages  % iterate stages
    
         
     else
+        if sensorMode == 2
+            ROUND_SAMPLES = initializeAllSamples(linkMap);
+        else
+            ROUND_SAMPLES = [];
+        end
         stageStart = tic;
         
         [ACCEPTED_POP, weights, ar, REJECTED_POP, errorCollectionForStage, thresholdVector, criteriaForStage] = ABC_SMC_stage2AndLater2_type2_network(measConfigID, configID, samplingSize, criteria,...
             ACCEPTED_POP, REJECTED_POP, ALL_SAMPLES, weights, populationSize, PARAMETER, CONFIG,...
             sensorMetaDataMap, LINK, SOURCE_LINK, SINK_LINK, JUNCTION, stage, linkMap, testingSensorIDs,...
-            sensorDataMatrix, nodeMap, errorCollectionForStage);
+            sensorDataMatrix, nodeMap, errorCollectionForStage, ROUND_SAMPLES);
         
         save([evolutionDataFolder '-acceptedPop-stage-' num2str(stage)], 'ACCEPTED_POP');
         save([evolutionDataFolder '-rejectedPop-stage-' num2str(stage)], 'REJECTED_POP');
@@ -146,7 +158,7 @@ for stage = 1 : numStages  % iterate stages
     weightsForRounds = [weightsForRounds; weights];
     criteriaForRounds = [criteriaForRounds; criteriaForStage];
     save([evolutionDataFolder '-calibrationResult-stage' num2str(stage)],'ar', 'meanForLinks', 'varForLinks', 'thresholdVector',...
-    'stageT');
+    'stageT', 'criteriaForStage', 'weightsForRounds');
 
 end
 

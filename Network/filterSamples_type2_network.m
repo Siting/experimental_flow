@@ -1,6 +1,6 @@
 function[ACCEPTED_POP, REJECTED_POP, indexCollectionPost, filteredWeights, errorCollectionForStage] = filterSamples_type2_network(POPULATION_2, indexCollection_1, oldWeights,...
     configID, measConfigID, stage, sensorDataMatrix, tSensorIDs, linkMap, nodeMap, sensorMetaDataMap,...
-    T, deltaTinSecond, thresholdVector, errorCollectionForStage)
+    T, deltaTinSecond, thresholdVector, errorCollectionForStage, ROUND_SAMPLES)
 
 % NOTE: there are two kind of indexes involved in the function.
 % 1st: sample index. Which is the index indicating which sample being
@@ -27,7 +27,7 @@ for sample = 1 : length(oldWeights)
     w = oldWeights(sample);
 
     % load model density simulation data (first row = initial state)
-    [modelDataMatrix] = getModelSimulationDataCumu_network(configID, sample, tSensorIDs, T, deltaTinSecond);
+    [modelDataMatrix] = getModelSimulationDataCumu_network(configID, sample, tSensorIDs, T, deltaTinSecond, ROUND_SAMPLES);
     
     if any(modelDataMatrix < 0)
         keyboard

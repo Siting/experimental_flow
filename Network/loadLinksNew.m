@@ -1,6 +1,7 @@
-function[LINK, SOURCE_LINK, SINK_LINK] = loadLinksNew(linkMap,FUNDAMENTAL, configID, LINK)
+function[LINK, ROUND_SAMPLES] = loadLinksNew(linkMap,FUNDAMENTAL, configID, LINK, ROUND_SAMPLES)
 
 global funsOption
+global sensorMode
 
 linkIds = linkMap.keys;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -39,6 +40,12 @@ for i = 1 : length(linkIds)
         link.dmax = NTlink.numberOfLanes * FUNDAMENTAL.dmax;
         link.dc = NTlink.numberOfLanes * FUNDAMENTAL.dc;
     end
-    
+    if sensorMode == 2
+        if i == 5 || i == 7
+
+            sample = [link.vmax; link.dmax; link.dc];
+            ROUND_SAMPLES(i).samples = [ROUND_SAMPLES(i).samples sample];
+        end
+    end
     LINK(linkIds{i}) = link;
 end
