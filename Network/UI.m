@@ -20,11 +20,11 @@ global errorStart
 
 
 % name the index of configuration(s) 
-configID = [41];
+configID = [42];
 
 % boundary sensorIDs & testing sensorIDs
 thresholdChoice = 2;  % 1: manually 2:adaptive
-expectAR = 0.5;
+expectAR = 0.3;
 sensorMode = 2; % 1: density, 2: flow
 errorStart = 4;  % # of data ignored ahead
 
@@ -42,7 +42,7 @@ if ABC_selection_type == 1
     numStages = 10;
     arForEveryRound = 0.5;
 elseif ABC_selection_type == 2
-    perturbationFactor = 0.15;
+    perturbationFactor = 0.1;
 end
 
 
