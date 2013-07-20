@@ -40,7 +40,7 @@ for sample = 1 : size(POPULATION_2(1).samples,2)
         startTime,unixTimeStep,trueStateErrorMean,trueStateErrorVar, sample, configID, evolutionDataFolder,...
         CONFIG, PARAMETER);
 
-    if mod(sample, 50) == 0
+    if mod(sample, 20) == 0
         disp(['sample ' num2str(sample) ' finished']);
     end
 end

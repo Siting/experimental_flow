@@ -24,7 +24,7 @@ configID = [42];
 
 % boundary sensorIDs & testing sensorIDs
 thresholdChoice = 2;  % 1: manually 2:adaptive
-expectAR = 0.3;
+expectAR = 0.5;
 sensorMode = 2; % 1: density, 2: flow
 errorStart = 4;  % # of data ignored ahead
 
@@ -40,9 +40,9 @@ map = 2;
 % 1: set AR, 2: set thresholds
 if ABC_selection_type == 1
     numStages = 10;
-    arForEveryRound = 0.5;
+    arForEveryRound = 0.3;
 elseif ABC_selection_type == 2
-    perturbationFactor = 0.1;
+    perturbationFactor = 0.05;
 end
 
 

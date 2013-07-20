@@ -22,9 +22,9 @@ unixTimeInterval=PARAMETER.T/(24*60);
 PARAMETER.numIntervals=round((endTime-PARAMETER.startTime)/unixTimeInterval);        
 
 % fundamental diagram parameters
-PARAMETER.vmax = 0;
-PARAMETER.dmax = 0;
-PARAMETER.dc = 0;
+PARAMETER.vmax = 65;
+PARAMETER.dmax = 150;
+PARAMETER.dc = 30;
 PARAMETER.FUNDAMENTAL=struct('vmax',PARAMETER.vmax,'dmax',PARAMETER.dmax,'dc',PARAMETER.dc);
 
 % split ratio
@@ -46,6 +46,5 @@ PARAMETER.modelFirst = 1;    % for model selection function
 PARAMETER.modelLast = 1;     % for model selection function
 PARAMETER.populationSize = 100;
 PARAMETER.samplingSize = 100;
-PARAMETER.thresholdVector = [5 5; 50 50; 50 50; 50 50; 50 50;...
-    50 50; 50 50; 50 50; 50 50; 50 50; 50 50;...
-    50 50];
+PARAMETER.thresholdVector = [1.8 1.8; 50 50; 50 50; 50 50; 50 50;...
+    50 50; 50 50; 50 50];

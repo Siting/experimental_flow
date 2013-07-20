@@ -11,7 +11,7 @@ while(state)
     sampleVmax = normrnd(vmaxMean, sqrt(vmaxVar));
     sampleDmax = normrnd(dmaxMean, sqrt(dmaxVar));
     sampleDc = normrnd(dcMean, sqrt(dcVar));
-    
+
     if sampleVmax > 0 && sampleDmax > 0 && sampleDc > 0 &&...
             sampleDmax > sampleDc && sampleVmax <= 100
         FUNDAMENTAL.vmax = sampleVmax;
